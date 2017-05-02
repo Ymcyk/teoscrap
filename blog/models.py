@@ -31,6 +31,7 @@ class Author(models.Model):
     def __str__(self):
         return self.name
 
+# TODO: przy wyszukiwaniu trzeba podawać małe znaki
 class Word(models.Model):
     word = models.CharField(
         max_length=255,
@@ -83,10 +84,10 @@ class ArticleWord(models.Model):
     objects = ArticleWordManager()
 
     @classmethod
-    def assing_words_to_article(cls, article, text):
+    def assign_text_to_article(cls, text, article):
         words = string_to_words_list(text)
         for word in words:
-            w = Word.objects.get_or_create(word=word)[0]
+            w = Word.objects.get_or_create(word=word.lower())[0]
             cls.objects.create(article=article, word=w)
 
     def __str__(self):

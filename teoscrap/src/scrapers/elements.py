@@ -72,9 +72,6 @@ class SlugsElements:
                 break
         return urls
 
-    def scrap(self, date):
-        raise NotImplementedError
-
     def __request_page_content(self, page_num):
         response = requests.get(urljoin(self.base_url, page_num))
         return html.fromstring(response.content)
@@ -88,7 +85,6 @@ class SlugsElements:
             if from_date:
                 art_date = string_to_date(article.cssselect(
                     self.selectors['time'])[0].attrib['datetime'])
-                # jeśli lxml w dokumenacji gwarantuje że są po kolei, to tu można dać break
                 if art_date < from_date:
                     continue
             tags.append(article.cssselect(self.selectors['slug'])[0])
@@ -98,4 +94,3 @@ class SlugsElements:
         tags = html_content.cssselect(self.selectors['next_page'])
         next_page = '' if not tags else tags[0].attrib['href']
         return next_page
-

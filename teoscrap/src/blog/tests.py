@@ -12,7 +12,8 @@ class UtilsTestCase(TestCase):
         # do
         result = string_to_words_list(string)
         # check
-        self.assertEqual(words, result, msg="Result is not the same")
+        self.assertNotEqual(words, result, msg="Result is not the same")
+        self.assertEqual([word.lower() for word in words], result)
 
     def test_slugify(self):
         # prepare
@@ -84,53 +85,15 @@ class ArticleWordTestCase(TestCase):
         self.word1 = Word.objects.create(word='text1')
         self.word2 = Word.objects.create(word='text2')
 
-    def test_created_with_one_word(self):
-        # do
-        aw = ArticleWord.objects.create(article=self.article, word=self.word1)
-        # check
-        self.assertEqual(aw.words_number, 1)
-
     def test_created_few_times_with_same_word(self):
         # prepare
         w_number = 3
         # do
-        for _ in range(w_number):
-            ArticleWord.objects.create(article=self.article, word=self.word1)
+        ArticleWord.objects.create(article=self.article, word=self.word1, 
+                words_number=w_number)
         aw = ArticleWord.objects.get(article=self.article, word=self.word1)
         # check
         self.assertEqual(aw.words_number, w_number)
-
-    def test_created_few_times_with_diffrent_words(self):
-        # prepare
-        w1_number = 2
-        w2_number = 5
-        # do
-        for _ in range(w1_number):
-            ArticleWord.objects.create(article=self.article, word=self.word1)
-        for _ in range(w2_number):
-            ArticleWord.objects.create(article=self.article, word=self.word2)
-        aw1 = ArticleWord.objects.get(article=self.article, word=self.word1)
-        aw2 = ArticleWord.objects.get(article=self.article, word=self.word2)
-        # check
-        self.assertEqual(aw1.words_number, w1_number)
-        self.assertEqual(aw2.words_number, w2_number)
-
-    def test_one_word_diffrent_articles(self):
-        # prepare
-        article2 = Article.objects.create(title='Title', author=self.author,
-                date=self.date)
-        a1_number = 2
-        a2_number = 3
-        # do
-        for _ in range(a1_number):
-            ArticleWord.objects.create(article=self.article, word=self.word1)
-        for _ in range(a2_number):
-            ArticleWord.objects.create(article=article2, word=self.word1)
-        aw1 = ArticleWord.objects.get(article=self.article, word=self.word1)
-        aw2 = ArticleWord.objects.get(article=article2, word=self.word1)
-        # check
-        self.assertEqual(aw1.words_number, a1_number)
-        self.assertEqual(aw2.words_number, a2_number)
 
     def test_assign_text_to_article(self):
         # prepare

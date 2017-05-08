@@ -1,7 +1,7 @@
+from collections import defaultdict
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from .managers import ArticleWordManager
 from .utils import slugify, string_to_words_list
 
 class Author(models.Model):
@@ -31,7 +31,6 @@ class Author(models.Model):
     def __str__(self):
         return self.name
 
-# TODO: przy wyszukiwaniu trzeba podawać małe znaki
 class Word(models.Model):
     word = models.CharField(
         max_length=255,
@@ -51,6 +50,7 @@ class Word(models.Model):
 class Article(models.Model):
     title = models.CharField(
         max_length=255,
+        unique=True,
     )
     author = models.ForeignKey(
         Author,
@@ -69,6 +69,9 @@ class Article(models.Model):
         return self.title
 
 class ArticleWord(models.Model):
+    '''
+    Number of word occurrences in an article
+    '''
     article = models.ForeignKey(
         Article,
         on_delete=models.CASCADE,
@@ -77,19 +80,17 @@ class ArticleWord(models.Model):
         Word,
         on_delete=models.CASCADE,
     )
-    words_number = models.PositiveIntegerField(
-        default=1,
-    )
-
-    objects = ArticleWordManager()
+    words_number = models.PositiveIntegerField()
 
     @classmethod
     def assign_text_to_article(cls, text, article):
-        words = string_to_words_list(text)
-        for word in words:
-            w = Word.objects.get_or_create(word=word.lower())[0]
-            cls.objects.create(article=article, word=w)
+        word_list = string_to_words_list(text)
+        word_dict = defaultdict(int)
+        for word in word_list:
+            word_dict[word] += 1
+        for key, val in word_dict.items():
+            w = Word.objects.get_or_create(word=key)[0]
+            cls.objects.create(article=article, word=w, words_number=val)
 
     def __str__(self):
         return '{} - {} {}'.format(self.article, self.word, self.words_number)
-

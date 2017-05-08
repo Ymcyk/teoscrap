@@ -3,7 +3,7 @@ TEOSCRAP
 
 Web scraper for build.sh blog
 
-Instalation
+Installation
 -----------
 
 ```
